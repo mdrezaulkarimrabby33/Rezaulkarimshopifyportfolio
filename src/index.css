@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  background: #030712;
+  font-family: "DM Sans", sans-serif;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.font-display {
+  font-family: "Barlow Condensed", sans-serif;
+}
+
+.font-mono {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px;
+}
+
+/* Moving red border */
+@property --header-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.header-moving-border {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.header-moving-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background: conic-gradient(
+    from var(--header-border-angle),
+    #551111 0deg,
+    #551111 65deg,
+    #ef4444 95deg,
+    #ffb0b0 110deg,
+    #ef4444 125deg,
+    #551111 155deg,
+    #551111 245deg,
+    #ef4444 275deg,
+    #ffb0b0 290deg,
+    #ef4444 305deg,
+    #551111 335deg,
+    #551111 360deg
+  );
+
+  animation: header-border-spin 5s linear infinite;
+}
+
+@keyframes header-border-spin {
+  to {
+    --header-border-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-moving-border::before {
+    animation: none;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
