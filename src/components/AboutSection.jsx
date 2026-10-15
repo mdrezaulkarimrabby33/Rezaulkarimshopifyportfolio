@@ -6,9 +6,7 @@ import {
   useTransform,
 } from "framer-motion";
 
-// Reference portrait — নিজের ছবি দিতে এই URL বদলাও।
-const portrait =
-  "public/img/about-portrait.png";
+const portrait = "/img/about-portrait.png";
 
 function ArrowUpRight() {
   return (
@@ -51,7 +49,7 @@ function ParallaxPortrait() {
       >
         <motion.img
           src={portrait}
-          alt="Portrait lit with red light"
+          alt="Rabby Maktech portrait"
           loading="lazy"
           decoding="async"
           draggable={false}
@@ -83,7 +81,6 @@ export default function AboutSection() {
       className="bg-[#1C1B18] px-5 py-12 text-[#F2EFE9] sm:px-8 sm:py-16 lg:px-12 lg:py-20"
     >
       <div className="mx-auto max-w-[1512px]">
-        {/* Section label */}
         <div className="flex items-center justify-between gap-4 border-t border-white/20 pt-5">
           <p className="font-mono text-[10px] uppercase tracking-wide sm:text-xs">
             03 / The person behind the pixels
@@ -98,12 +95,10 @@ export default function AboutSection() {
         </div>
 
         <div className="mt-10 grid grid-cols-1 items-center gap-10 sm:mt-14 md:grid-cols-[0.9fr_1.1fr] md:gap-12 lg:gap-24 xl:gap-32">
-          {/* Left portrait */}
           <div className="w-full max-w-[520px]">
             <ParallaxPortrait />
           </div>
 
-          {/* Right content */}
           <motion.div
             initial={
               reduceMotion ? false : { opacity: 0, y: 35 }
