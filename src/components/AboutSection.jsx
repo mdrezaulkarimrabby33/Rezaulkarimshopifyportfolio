@@ -8,7 +8,7 @@ import {
 
 // Reference portrait — নিজের ছবি দিতে এই URL বদলাও।
 const portrait =
-  "public/img/Red-Lit Editorial Portrait.png";
+  "public/img/about-portrait.png";
 
 function ArrowUpRight() {
   return (
