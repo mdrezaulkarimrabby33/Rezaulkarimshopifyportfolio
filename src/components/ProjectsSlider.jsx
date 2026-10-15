@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 
 // Background image
-const backgroundImage = "/img/Red-Lit Editorial Portrait.png";
+const backgroundImage = "/img/about-portrait.png";
 
 // নিজের project image ও live link দাও।
 const projects = [
@@ -32,7 +32,7 @@ const projects = [
     title: "Creative Portfolio",
     category: "REACT",
     description: "Fluid interactions and a distinctive visual identity.",
-    image: "/img/Red-Lit Editorial Portrait.png",
+    image: "/img/about-portrait.png",
     href: "#contact",
   },
   {
@@ -53,7 +53,7 @@ const projects = [
     title: "Editorial Website",
     category: "WORDPRESS",
     description: "Clean typography and a flexible editorial foundation.",
-    image: "/img/Red-Lit Editorial Portrait.png",
+    image: "/img/about-portrait.png",
     href: "#contact",
   },
   {

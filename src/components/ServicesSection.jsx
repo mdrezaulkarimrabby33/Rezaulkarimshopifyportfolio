@@ -11,7 +11,7 @@ import {
 const serviceImages = {
   shopify: "/img/Golden-Hour Lakeside Dock Portrait.png",
   wordpress: "/img/imagehero.png",
-  seo: "/img/Red-Lit Editorial Portrait.png",
+  seo: "/img/about-portrait.png",
 };
 
 const services = [

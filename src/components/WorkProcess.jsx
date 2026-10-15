@@ -9,7 +9,7 @@ import {
 const images = [
   "/img/Golden-Hour Lakeside Dock Portrait.png",
   "/img/imagehero.png",
-  "/img/Red-Lit Editorial Portrait.png",
+  "/img/about-portrait.png",
   "/img/Golden-Hour Lakeside Dock Portrait.png",
   "/img/imagehero.png",
   "public/img/about-portrait.png",
