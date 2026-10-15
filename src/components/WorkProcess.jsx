@@ -14,7 +14,7 @@ const images = [
   "/img/imagehero.png",
   "public/img/about-portrait.png",
   "/img/Golden-Hour Lakeside Dock Portrait.png",
-  "/img/imagehero.png",
+  "/img/about-portrait.png",
 ];
 
 const steps = [
