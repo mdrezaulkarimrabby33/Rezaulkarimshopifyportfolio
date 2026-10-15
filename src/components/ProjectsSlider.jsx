@@ -9,12 +9,42 @@ import {
   useTransform,
 } from "framer-motion";
 
-// Background image
-const backgroundImage = "/img/about-portrait.png";
+/* =========================================================
+   1. SECTION SETTINGS — শুধু এই অংশ edit করো
+   public/img/bg.jpg ফাইলের URL হবে /img/bg.jpg
+========================================================= */
+const sliderContent = {
+  sectionId: "projects",
+  label: "Selected work / Portfolio",
+  heading: "Featured projects",
+  accent: ".",
+  description: "Drag or swipe to explore. Hover to hide the text.",
+  projectLinkText: "View live site ↗",
+  backgroundImage: "/img/bgred.jpg",
+};
 
-// নিজের project image ও live link দাও।
+/* =========================================================
+   2. PROJECTS — ছবি, লেখা ও live link এখান থেকে বদলাও
+
+   id: প্রতিটি project-এর আলাদা পরিচয়; duplicate দেবে না।
+   title: project-এর নাম
+   category: Shopify / WordPress / SEO ইত্যাদি
+   description: project-এর সংক্ষিপ্ত বিবরণ
+   image: /img/filename.png (public লিখবে না)
+   imagePosition: "top", "center", অথবা "50% 30%"
+   href: আসল live URL, যেমন https://example.com
+   newTab: true = বাইরের URL নতুন tab-এ খুলবে
+
+   নতুন project: একটি সম্পূর্ণ { ... } block copy করে
+   array-এর শেষে যোগ করো; আলাদা id দাও।
+   project সরাতে তার সম্পূর্ণ block মুছে দাও।
+   Slider-এর জন্য অন্তত 3টি project রাখলে ভালো দেখাবে।
+========================================================= */
 const projects = [
   {
+    id: "project-1",
+    newTab: true,
+    imagePosition: "top",
     title: "Shopify Store",
     category: "SHOPIFY",
     description: "A thoughtful shopping experience built for growth.",
@@ -22,6 +52,9 @@ const projects = [
     href: "#contact",
   },
   {
+    id: "project-2",
+    newTab: true,
+    imagePosition: "top",
     title: "Business Website",
     category: "WORDPRESS",
     description: "A fast, responsive website with a clear content system.",
@@ -29,6 +62,9 @@ const projects = [
     href: "#contact",
   },
   {
+    id: "project-3",
+    newTab: true,
+    imagePosition: "top",
     title: "Creative Portfolio",
     category: "REACT",
     description: "Fluid interactions and a distinctive visual identity.",
@@ -36,6 +72,9 @@ const projects = [
     href: "#contact",
   },
   {
+    id: "project-4",
+    newTab: true,
+    imagePosition: "top",
     title: "Digital Studio",
     category: "REACT",
     description: "A considered digital presence for a modern studio.",
@@ -43,6 +82,9 @@ const projects = [
     href: "#contact",
   },
   {
+    id: "project-5",
+    newTab: true,
+    imagePosition: "top",
     title: "Brand Experience",
     category: "DEVELOPMENT",
     description: "A memorable interface designed around the brand.",
@@ -50,6 +92,9 @@ const projects = [
     href: "#contact",
   },
   {
+    id: "project-6",
+    newTab: true,
+    imagePosition: "top",
     title: "Editorial Website",
     category: "WORDPRESS",
     description: "Clean typography and a flexible editorial foundation.",
@@ -57,6 +102,9 @@ const projects = [
     href: "#contact",
   },
   {
+    id: "project-7",
+    newTab: true,
+    imagePosition: "top",
     title: "Online Store",
     category: "SHOPIFY",
     description: "Product-focused pages with a seamless shopping journey.",
@@ -64,6 +112,8 @@ const projects = [
     href: "#contact",
   },
 ];
+
+/* ===== নিচে animation ও layout — content edit করতে হবে না ===== */
 
 const wrap = (value, count) => ((value % count) + count) % count;
 
@@ -485,11 +535,11 @@ function BackgroundDecorations() {
 function AnimatedBackground({ children }) {
   return (
     <section
-      id="projects"
-      aria-labelledby="projects-heading"
+      id={sliderContent.sectionId}
+      aria-labelledby={`${sliderContent.sectionId}-heading`}
       className="relative isolate overflow-hidden bg-[#5C0B1A] py-12 text-white sm:py-16 lg:py-20"
     >
-      <WaterBackground src={backgroundImage} />
+      <WaterBackground src={sliderContent.backgroundImage} />
 
       <div
         aria-hidden="true"
@@ -572,6 +622,8 @@ function ProjectCard({
     >
       <a
         href={project.href}
+        target={project.newTab && /^https?:\/\//i.test(project.href) ? "_blank" : undefined}
+        rel={project.newTab && /^https?:\/\//i.test(project.href) ? "noopener noreferrer" : undefined}
         tabIndex={selected ? 0 : -1}
         aria-label={`View ${project.title}`}
         onDragStart={(event) => event.preventDefault()}
@@ -596,7 +648,8 @@ function ProjectCard({
       >
         <motion.img
           src={project.image}
-          alt={project.title}
+          alt={project.imageAlt || project.title}
+          style={{ objectPosition: project.imagePosition || "top" }}
           draggable={false}
           initial={false}
           animate={{ scale: hideText && !reduceMotion ? 1.04 : 1 }}
@@ -626,7 +679,7 @@ function ProjectCard({
             </span>
 
             <span className="text-xs text-white/75">
-              View live site ↗
+              {sliderContent.projectLinkText}
             </span>
           </div>
 
@@ -827,19 +880,19 @@ export default function ProjectsSlider() {
         <div className="flex items-end justify-between gap-6">
           <div>
             <p className="mb-4 font-mono text-[10px] uppercase tracking-wider text-white/80">
-              Selected work / Portfolio
+              {sliderContent.label}
             </p>
 
             <h2
-              id="projects-heading"
+              id={`${sliderContent.sectionId}-heading`}
               className="font-['Oswald',sans-serif] text-4xl font-semibold uppercase sm:text-5xl lg:text-6xl"
             >
-              Featured projects
-              <span className="text-red-500">.</span>
+              {sliderContent.heading}
+              <span className="text-red-500">{sliderContent.accent}</span>
             </h2>
 
             <p className="mt-4 text-sm text-white/80">
-              Drag or swipe to explore. Hover to hide the text.
+              {sliderContent.description}
             </p>
           </div>
 
@@ -901,7 +954,7 @@ export default function ProjectsSlider() {
           <div className="h-full w-full scale-[0.52] [perspective:900px] sm:scale-[0.75] lg:scale-100">
             {projects.map((project, cardIndex) => (
               <ProjectCard
-                key={`${project.title}-${cardIndex}`}
+                key={project.id}
                 project={project}
                 cardIndex={cardIndex}
                 position={position}
@@ -927,7 +980,7 @@ export default function ProjectsSlider() {
         <div className="flex items-center gap-1 sm:gap-2">
           {projects.map((project, dotIndex) => (
             <button
-              key={project.title}
+              key={project.id}
               type="button"
               aria-label={`Show ${project.title}`}
               aria-current={dotIndex === index ? "true" : undefined}

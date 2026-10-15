@@ -7,6 +7,7 @@ import SmoothScroll from "./components/SmoothScroll";
 import AboutSection from "./components/AboutSection";
 import ServicesSection from "./components/ServicesSection";
 import ProjectsSlider from "./components/ProjectsSlider";
+import ContactServices from "./components/ContactServices";
 export default function App() {
   return (
     <>
@@ -19,6 +20,7 @@ export default function App() {
       <SmoothScroll />
       <ServicesSection />
       <ProjectsSlider />
+      <ContactServices />
     </>
   );
 }
