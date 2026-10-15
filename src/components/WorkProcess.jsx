@@ -12,7 +12,7 @@ const images = [
   "/img/about-portrait.png",
   "/img/Golden-Hour Lakeside Dock Portrait.png",
   "/img/imagehero.png",
-  "public/img/about-portrait.png",
+  "/img/about-portrait.png",
   "/img/Golden-Hour Lakeside Dock Portrait.png",
   "/img/about-portrait.png",
 ];
