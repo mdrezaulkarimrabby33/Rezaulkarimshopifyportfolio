@@ -1,21 +1,25 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
-  useInView,
-  useMotionValue,
   useReducedMotion,
-  useSpring,
-  useTransform,
 } from "framer-motion";
 
 /* =========================================
    CONTENT — এখানে পরিবর্তন করো
 ========================================= */
 
+// LOGO SETTINGS — font ও automatic animation speed এখান থেকে বদলাও।
+const logoSettings = {
+  fontUrl: "https://fonts.gstatic.com/s/geist/v5/gyBhhwUxId8gMGYQMKR3pzfaWI_RruM4mJPby1QNtA.woff2",
+  fontFamily: "FooterGeist",
+  fontWeight: 500,
+  cycleSeconds: 9, // কমালে দ্রুত, বাড়ালে ধীরে animate করবে।
+};
+
 const footerContent = {
   heading: "Have a project in mind?",
-  email: "YOUR_EMAIL@gmail.com",
-  brand: "RABBY",
+  email: "karimrabby15@gmail.com",
+  brand: "REZAUL",
   copyrightName: "Rabby Maktech",
   credit: "Crafted by Rabby Maktech",
 };
@@ -96,275 +100,280 @@ function RollingLink({ label, href }) {
    GLOSSY REFLECTION WORDMARK
 ========================================= */
 
+// Automatic glossy lighting — mouse/hover ছাড়াই চলতে থাকবে।
 function FooterWordmark() {
-  const ref = useRef(null);
+  const hostRef = useRef(null);
+  const canvasRef = useRef(null);
   const reduceMotion = useReducedMotion();
-  const visible = useInView(ref, { margin: "100px" });
+  const [ready, setReady] = useState(false);
 
-  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const animateLight = visible && !reduceMotion;
+  useEffect(() => {
+    const host = hostRef.current;
+    const canvas = canvasRef.current;
+    if (!host || !canvas) return;
+    const gl = canvas.getContext("webgl", {
+      alpha: true,
+      antialias: true,
+      premultipliedAlpha: false,
+    });
+    if (!gl) return;
 
-  const mouseX = useMotionValue(600);
-  const mouseY = useMotionValue(100);
+    const vertexSource = `
+      attribute vec2 a_position;
+      varying vec2 v_uv;
+      void main() {
+        v_uv = a_position * 0.5 + 0.5;
+        gl_Position = vec4(a_position, 0., 1.);
+      }
+    `;
+    const fragmentSource = `
+      precision highp float;
+      varying vec2 v_uv;
+      uniform sampler2D u_mask;
+      uniform vec2 u_texel;
+      uniform vec2 u_mouse;
+      uniform float u_aspect;
+      float heightAt(vec2 uv) { return texture2D(u_mask, uv).g; }
+      void main() {
+        vec4 mask = texture2D(u_mask, v_uv);
+        float alpha = mask.r;
+        if (alpha < 0.01) { gl_FragColor = vec4(0.); return; }
 
-  const lightX = useSpring(mouseX, {
-    stiffness: 75,
-    damping: 24,
-  });
+        // Rounded bevel generated from the blurred letter silhouette.
+        float h = mask.g;
+        float dx = heightAt(v_uv + vec2(u_texel.x * 2.,0.))
+                 - heightAt(v_uv - vec2(u_texel.x * 2.,0.));
+        float dy = heightAt(v_uv + vec2(0.,u_texel.y * 2.))
+                 - heightAt(v_uv - vec2(0.,u_texel.y * 2.));
+        vec3 normal = normalize(vec3(-dx * 14., -dy * 14., 1.));
+        vec2 p = vec2(v_uv.x * u_aspect, v_uv.y);
+        vec2 mouse = vec2(u_mouse.x * u_aspect, u_mouse.y);
+        vec2 delta = mouse - p;
+        vec3 light = normalize(vec3(delta, 0.42));
+        vec3 halfway = normalize(light + vec3(0., 0., 1.));
+        float distanceToLight = length(delta);
+        float proximity = exp(-distanceToLight * distanceToLight * 0.10);
+        float diffuse = max(dot(normal, light), 0.);
+        float specular = pow(max(dot(normal, halfway), 0.), 22.);
+        float bevel = 1. - smoothstep(0.55, 0.99, h);
+        float rim = pow(1. - normal.z, 0.65);
 
-  const lightY = useSpring(mouseY, {
-    stiffness: 75,
-    damping: 24,
-  });
+        // Broad reflection across several letters, not a small round spotlight.
+        float sweep = (v_uv.x - u_mouse.x) * 2.4
+                    + (v_uv.y - u_mouse.y) * 0.45;
+        float band = exp(-pow(sweep + 0.35, 2.) * 1.3);
+        float reflection = clamp(band * proximity, 0., 1.);
+        vec3 darkRed = vec3(0.045, 0.001, 0.005);
+        vec3 red = vec3(1., 0.015, 0.10);
+        vec3 pearl = vec3(1., 0.88, 0.86);
+        vec3 color = mix(darkRed, red, smoothstep(0.08, 0.65, reflection));
+        color = mix(color, pearl, smoothstep(0.30, 0.92, reflection));
+        // The bevel keeps strong red outlines with moving white edge highlights.
+        color = mix(color, red * (0.28 + diffuse * 0.72), bevel * 0.7);
+        color += red * rim * proximity * 0.6;
+        color += vec3(1.,0.72,0.72) * specular * bevel * proximity * 1.25;
+        color += red * bevel * 0.08;
+        gl_FragColor = vec4(clamp(color,0.,1.),alpha);
+      }
+    `;
 
-  const reflectionX = useTransform(
-    lightX,
-    (value) => `${(value / 1200) * 100}%`
-  );
-
-  const reflectionY = useTransform(
-    lightY,
-    (value) => `${(value / 320) * 100}%`
-  );
-
-  function handleMove(event) {
-    if (reduceMotion || event.pointerType !== "mouse") return;
-
-    const bounds = event.currentTarget.getBoundingClientRect();
-
-    mouseX.set(
-      ((event.clientX - bounds.left) / bounds.width) * 1200
+    function compile(type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    }
+    const vertex = compile(gl.VERTEX_SHADER, vertexSource);
+    const fragment = compile(gl.FRAGMENT_SHADER, fragmentSource);
+    if (!vertex || !fragment) {
+      if (vertex) gl.deleteShader(vertex);
+      if (fragment) gl.deleteShader(fragment);
+      return;
+    }
+    const program = gl.createProgram();
+    gl.attachShader(program, vertex);
+    gl.attachShader(program, fragment);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      gl.deleteProgram(program);
+      gl.deleteShader(vertex);
+      gl.deleteShader(fragment);
+      return;
+    }
+    gl.useProgram(program);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1,
+    ]), gl.STATIC_DRAW);
+    const position = gl.getAttribLocation(program, "a_position");
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+    const texture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const uniforms = Object.fromEntries(
+      ["mask", "texel", "mouse", "aspect"].map(name =>
+        [name, gl.getUniformLocation(program, `u_${name}`)]
+      )
     );
+    gl.uniform1i(uniforms.mask, 0);
 
-    mouseY.set(
-      ((event.clientY - bounds.top) / bounds.height) * 320
-    );
-  }
+    let disposed = false;
+    let loaded = false;
+    let visible = true;
+    let frame = 0;
+    let lastTime = 0;
+    let elapsed = 0;
+    let revealed = false;
 
-  function resetLight() {
-    mouseX.set(600);
-    mouseY.set(100);
-  }
+    function schedule() {
+      if (!disposed && loaded && visible && !document.hidden && !frame) {
+        frame = requestAnimationFrame(draw);
+      }
+    }
+    function draw(time) {
+      frame = 0;
+      if (disposed || !loaded || !visible || document.hidden || gl.isContextLost()) return;
+      const dt = lastTime ? Math.min((time - lastTime) / 1000, 0.06) : 0.016;
+      lastTime = time;
+      // Continuous closed orbit: no hover listener or pointer position.
+      if (!reduceMotion) elapsed += dt;
+      const phase = elapsed * Math.PI * 2 / Math.max(logoSettings.cycleSeconds, 1);
+      const lightX = reduceMotion ? 0.6 : 0.5 + Math.sin(phase) * 0.95;
+      const lightY = reduceMotion ? 0.65 : 0.5 + Math.cos(phase) * 0.7;
+      gl.useProgram(program);
+      gl.uniform2f(uniforms.mouse, lightX, lightY);
+      gl.uniform1f(uniforms.aspect, canvas.width / canvas.height);
+      gl.clearColor(0,0,0,0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      if (!revealed) {
+        revealed = true;
+        setReady(true);
+      }
+      // Request the next frame while visible, even with a stationary mouse.
+      if (!reduceMotion) schedule();
+    }
+    function resize() {
+      const bounds = host.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.max(1, Math.round(bounds.width * dpr));
+      canvas.height = Math.max(1, Math.round(bounds.height * dpr));
+      gl.viewport(0,0,canvas.width,canvas.height);
+      schedule();
+    }
+    function visibilityChange() { lastTime = 0; schedule(); }
+    function contextLost() { loaded = false; setReady(false); }
 
-  const textProps = {
-    x: 15,
-    y: 270,
-    textLength: 1170,
-    lengthAdjust: "spacingAndGlyphs",
-    fontFamily: "Oswald, sans-serif",
-    fontSize: 300,
-    fontWeight: 600,
-  };
+    async function createMask() {
+      // Wait for the SAME font used by the rest of the website.
+      try {
+        const font = new FontFace(
+          logoSettings.fontFamily,
+          `url("${logoSettings.fontUrl}")`,
+          { weight: String(logoSettings.fontWeight), style: "normal" }
+        );
+        await font.load();
+        document.fonts.add(font);
+        await document.fonts.load(`${logoSettings.fontWeight} 360px "${logoSettings.fontFamily}"`);
+      } catch {
+        // Keep a readable sans-serif fallback if the font request fails.
+      }
+      if (disposed) return;
+      const width = 1600;
+      const height = 430;
+      const sharp = document.createElement("canvas");
+      sharp.width = width; sharp.height = height;
+      const ctx = sharp.getContext("2d");
+      if (!ctx) return;
+      ctx.font = `${logoSettings.fontWeight} 360px "${logoSettings.fontFamily}", Arial, sans-serif`;
+      const text = footerContent.brand.toUpperCase();
+      const metrics = ctx.measureText(text);
+      const left = metrics.actualBoundingBoxLeft || 0;
+      const right = metrics.actualBoundingBoxRight || metrics.width;
+      const ascent = metrics.actualBoundingBoxAscent || 260;
+      const descent = metrics.actualBoundingBoxDescent || 5;
+      ctx.save();
+      // Uniform scale keeps the original font proportions intact.
+      const glyphWidth = Math.max(left + right, 1);
+      const glyphHeight = Math.max(ascent + descent, 1);
+      const fit = Math.min((width - 44) / glyphWidth, (height - 48) / glyphHeight);
+      ctx.translate((width - glyphWidth * fit) / 2, (height - glyphHeight * fit) / 2);
+      ctx.scale(fit, fit);
+      ctx.fillStyle = "white";
+      ctx.fillText(text, left, ascent);
+      ctx.restore();
+      const blurred = document.createElement("canvas");
+      blurred.width = width; blurred.height = height;
+      const blurCtx = blurred.getContext("2d");
+      if (!blurCtx) return;
+      blurCtx.filter = "blur(8px)";
+      blurCtx.drawImage(sharp,0,0);
+      const crispPixels = ctx.getImageData(0,0,width,height);
+      const blurPixels = blurCtx.getImageData(0,0,width,height);
+      // R = crisp coverage; G = rounded height field.
+      for (let i=0;i<crispPixels.data.length;i+=4) {
+        crispPixels.data[i] = crispPixels.data[i+3];
+        crispPixels.data[i+1] = blurPixels.data[i+3];
+        crispPixels.data[i+2] = 0;
+        crispPixels.data[i+3] = 255;
+      }
+      ctx.putImageData(crispPixels,0,0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,sharp);
+      gl.uniform2f(uniforms.texel,1/width,1/height);
+      loaded = true;
+      resize();
+    }
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(host);
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      lastTime = 0;
+      schedule();
+    });
+    observer.observe(host);
+    document.addEventListener("visibilitychange",visibilityChange);
+    canvas.addEventListener("webglcontextlost",contextLost);
+    createMask();
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      observer.disconnect();
+      document.removeEventListener("visibilitychange",visibilityChange);
+      canvas.removeEventListener("webglcontextlost",contextLost);
+      gl.deleteTexture(texture);
+      gl.deleteBuffer(buffer);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertex);
+      gl.deleteShader(fragment);
+    };
+  }, [reduceMotion]);
 
   return (
-    <div
-      ref={ref}
-      onPointerMove={handleMove}
-      onPointerLeave={resetLight}
-      onPointerCancel={resetLight}
-      className="relative mt-8 overflow-hidden border-t border-white/15 pt-5 sm:mt-10 sm:pt-8"
-    >
-      <svg
-        viewBox="0 0 1200 320"
-        role="img"
-        aria-label={footerContent.brand}
-        className="block h-auto w-full select-none"
-      >
-        <defs>
-          {/* Fixed letter shape */}
-          <clipPath id={`${id}-letters`}>
-            <text {...textProps}>
-              {footerContent.brand}
-            </text>
-          </clipPath>
-
-          {/* Dark red to pearl reflection */}
-          <linearGradient
-            id={`${id}-metal`}
-            x1="0%"
-            y1="0%"
-            x2="100%"
-            y2="20%"
-            spreadMethod="reflect"
-          >
-            <stop offset="0%" stopColor="#160407" />
-            <stop offset="20%" stopColor="#42080F" />
-            <stop offset="37%" stopColor="#EF263E" />
-            <stop offset="47%" stopColor="#FF8D99" />
-            <stop offset="54%" stopColor="#FFF0EA" />
-            <stop offset="70%" stopColor="#FFE0DA" />
-            <stop offset="86%" stopColor="#FF485C" />
-            <stop offset="100%" stopColor="#3A070D" />
-          </linearGradient>
-
-          {/* Broad moving light */}
-          <radialGradient id={`${id}-sweep`}>
-            <stop
-              offset="0%"
-              stopColor="#FFF6F0"
-              stopOpacity="0.95"
-            />
-            <stop
-              offset="35%"
-              stopColor="#FFD8D4"
-              stopOpacity="0.65"
-            />
-            <stop
-              offset="70%"
-              stopColor="#FF4F65"
-              stopOpacity="0.2"
-            />
-            <stop
-              offset="100%"
-              stopColor="#FF4F65"
-              stopOpacity="0"
-            />
-          </radialGradient>
-
-          {/* Cursor reflection */}
-          <motion.radialGradient
-            id={`${id}-pointer`}
-            cx={reflectionX}
-            cy={reflectionY}
-            r="45%"
-          >
-            <stop
-              offset="0%"
-              stopColor="#FFFFFF"
-              stopOpacity="0.7"
-            />
-            <stop
-              offset="45%"
-              stopColor="#FFB9BF"
-              stopOpacity="0.2"
-            />
-            <stop
-              offset="100%"
-              stopColor="#FFFFFF"
-              stopOpacity="0"
-            />
-          </motion.radialGradient>
-
-          {/* Rounded reflective bevel along letter edges */}
-          <filter
-            id={`${id}-bevel`}
-            x="-5%"
-            y="-15%"
-            width="110%"
-            height="130%"
-            colorInterpolationFilters="sRGB"
-          >
-            <feGaussianBlur
-              in="SourceAlpha"
-              stdDeviation="5"
-              result="height"
-            />
-
-            <feSpecularLighting
-              in="height"
-              surfaceScale="9"
-              specularConstant="1.2"
-              specularExponent="25"
-              lightingColor="#FFE5E0"
-              result="shine"
-            >
-              <motion.fePointLight
-                x={lightX}
-                y={lightY}
-                z="160"
-              />
-            </feSpecularLighting>
-
-            <feComposite
-              in="shine"
-              in2="SourceAlpha"
-              operator="in"
-              result="clippedShine"
-            />
-
-            <feMerge>
-              <feMergeNode in="SourceGraphic" />
-              <feMergeNode in="clippedShine" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Red outer edge */}
-        <text
-          {...textProps}
-          fill="#B6162B"
-          stroke="#FF354F"
-          strokeWidth="3"
-          strokeLinejoin="round"
-          paintOrder="stroke fill"
-          filter={`url(#${id}-bevel)`}
-        >
-          {footerContent.brand}
-        </text>
-
-        {/* Reflections move inside the fixed letters */}
-        <g clipPath={`url(#${id}-letters)`}>
-          <motion.rect
-            x="-1200"
-            y="-200"
-            width="3600"
-            height="800"
-            fill={`url(#${id}-metal)`}
-            animate={{
-              x: animateLight
-                ? [-1200, -350, -1200]
-                : -900,
-            }}
-            transition={{
-              duration: 11,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-
-          <motion.ellipse
-            cx="600"
-            cy="110"
-            rx="650"
-            ry="230"
-            fill={`url(#${id}-sweep)`}
-            animate={
-              animateLight
-                ? {
-                    cx: [100, 1050, 100],
-                    cy: [40, 230, 40],
-                  }
-                : { cx: 650, cy: 100 }
-            }
-            transition={{
-              duration: 9,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-
-          <rect
-            width="1200"
-            height="320"
-            fill={`url(#${id}-pointer)`}
-          />
-        </g>
-
-        {/* Persistent edge shine */}
-        <text
-          {...textProps}
-          aria-hidden="true"
-          fill="none"
-          stroke="#FF7583"
-          strokeWidth="1.6"
-          filter={`url(#${id}-bevel)`}
-        >
-          {footerContent.brand}
-        </text>
-      </svg>
+    <div className="relative mt-8 overflow-hidden border-t border-white/15 pt-5 sm:mt-10 sm:pt-8">
+      <div ref={hostRef} className="relative aspect-[1600/430] w-full" role="img" aria-label={footerContent.brand}>
+        <svg aria-hidden="true" viewBox="0 0 1200 320" className="absolute inset-0 h-full w-full" style={{visibility: ready ? "hidden" : "visible"}}>
+          <text x="15" y="270" textLength="1170" lengthAdjust="spacingAndGlyphs" fontFamily="FooterGeist, Arial, sans-serif" fontSize="300" fontWeight="500" fill="#EF4444">{footerContent.brand}</text>
+        </svg>
+        <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
+      </div>
     </div>
   );
 }
+
 
 /* =========================================
    FOOTER
@@ -413,7 +422,7 @@ export default function Footer() {
         {/* Heading */}
         <h2
           id="footer-heading"
-          className="font-['Oswald',sans-serif] text-[clamp(2rem,4.5vw,4.5rem)] font-medium uppercase leading-[1.12] tracking-tight text-[#AAA69F]"
+          className="font-['FooterGeist',Arial,sans-serif] text-[clamp(2rem,4.5vw,4.5rem)] font-medium uppercase leading-[1.12] tracking-tight text-[#AAA69F]"
         >
           {footerContent.heading}
         </h2>
@@ -423,7 +432,7 @@ export default function Footer() {
           href={`mailto:${footerContent.email}`}
           className="group mt-3 inline-flex max-w-full items-start gap-3 text-[#F2EFE9] outline-none transition-colors duration-300 hover:text-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500 sm:gap-5"
         >
-          <span className="min-w-0 break-all font-['Oswald',sans-serif] text-[clamp(1.6rem,4.5vw,4.5rem)] font-medium leading-[1.2] tracking-tight">
+          <span className="min-w-0 break-all font-['FooterGeist',Arial,sans-serif] text-[clamp(1.6rem,4.5vw,4.5rem)] font-medium leading-[1.2] tracking-tight">
             {footerContent.email}
           </span>
 

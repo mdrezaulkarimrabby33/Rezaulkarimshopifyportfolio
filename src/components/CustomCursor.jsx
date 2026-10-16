@@ -24,8 +24,8 @@ export default function CustomCursor() {
     );
 
     const update = () => setEnabled(media.matches);
-    update();
 
+    update();
     media.addEventListener("change", update);
 
     return () => {
@@ -41,16 +41,44 @@ export default function CustomCursor() {
     const updateHover = (clientX, clientY) => {
       const target = document.elementFromPoint(clientX, clientY);
 
+      if (!target) {
+        setHovered(false);
+        return;
+      }
+
+      // যেকোনো element-এ চাইলে effect বন্ধ করা যাবে।
+      if (target.closest('[data-cursor="default"]')) {
+        setHovered(false);
+        return;
+      }
+
+      // Header/footer navigation menu-তে বড় cursor হবে না।
+      const menu = target.closest(
+        "header nav, footer nav, " +
+          'header [role="navigation"], footer [role="navigation"]'
+      );
+
+      if (menu) {
+        setHovered(false);
+        return;
+      }
+
+      // Image, portrait, button এবং অন্য links-এ arrow দেখাবে।
       setHovered(
         Boolean(
-          target?.closest(
-            'a, button:not(:disabled), [role="button"], [data-cursor="hover"]'
+          target.closest(
+            'img, picture, ' +
+              '#home [data-cursor="image"], ' +
+              'a, button:not(:disabled), [role="button"], ' +
+              '[data-cursor="hover"], [data-cursor="image"]'
           )
         )
       );
     };
 
     const move = (event) => {
+      if (event.pointerType !== "mouse") return;
+
       mouseX.set(event.clientX);
       mouseY.set(event.clientY);
 
@@ -79,6 +107,7 @@ export default function CustomCursor() {
     window.addEventListener("pointermove", move);
     document.addEventListener("pointerleave", hide);
     window.addEventListener("blur", hide);
+
     window.addEventListener("scroll", handleScroll, {
       passive: true,
       capture: true,
