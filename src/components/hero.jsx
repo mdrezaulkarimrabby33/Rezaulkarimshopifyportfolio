@@ -285,14 +285,14 @@ export default function Hero() {
               <span className="mb-4 block text-[0.65em]">
                 HI, I'M
               </span>
-              <span className="block">RABBY</span>
+              <span className="block">REZAUL KARIM</span>
               <span className="block">
-                MAKTECH<span className="text-red-500">.</span>
+               RABBY<span className="text-red-500">.</span>
               </span>
             </h1>
 
             <p className="font-display my-8 text-[28px] font-semibold leading-tight">
-              SHOPIFY DEVELOPER.
+              SHOPIFY DEVELOPER FROM MAKTECH.
               <br />
               WORDPRESS DEVELOPER.
               <br />

@@ -8,7 +8,10 @@ import AboutSection from "./components/AboutSection";
 import ServicesSection from "./components/ServicesSection";
 import ProjectsSlider from "./components/ProjectsSlider";
 import ContactServices from "./components/ContactServices";
+import Footer from "./components/Footer";
 export default function App() {
+
+  
   return (
     <>
       <Header />
@@ -21,6 +24,7 @@ export default function App() {
       <ServicesSection />
       <ProjectsSlider />
       <ContactServices />
+      <Footer />
     </>
   );
 }

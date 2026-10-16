@@ -8,18 +8,73 @@ import {
   useReducedMotion,
 } from "framer-motion";
 
+/* ==================================================
+   HEADER SETTINGS — এখানে edit করো
+================================================== */
+
+const headerSettings = {
+  // Header width ও position
+  box: {
+    maxWidth: "1400px",
+    mobileWidth: "94%",
+    desktopWidth: "85%",
+    mobileTop: "12px",
+    desktopTop: "24px",
+  },
+
+  // Logo image
+  // ফাইল: public/img/logo.png
+  // Path: /img/logo.png
+  logo: {
+    href: "#home",
+    ariaLabel: "MRHK home",
+    image: "public/img/MRHK coral-charcoal editorial monogram.png",
+    imageAlt: "MRHK",
+    imageClassName:
+      "block h-auto w-[90px] object-contain sm:w-[110px]",
+  },
+
+  // Menu font ও size
+  menu: {
+    desktopFontClassName:
+      "text-[12px] font-bold uppercase tracking-[1.4px] xl:text-[14px]",
+    mobileFontClassName:
+      "text-sm font-bold uppercase tracking-wider",
+  },
+
+  // ডান পাশের button
+  button: {
+    text: "Enquire",
+    href: "#contact",
+    fontClassName: "text-xs font-semibold md:text-sm",
+  },
+
+  defaultActiveHref: "#home",
+};
+
+/* ==================================================
+   MENU CONTENT — নাম ও link বদলাও
+================================================== */
+
 const navItems = [
-  { label: "Home", id: "home" },
-  { label: "Experiences", id: "experiences" },
-  { label: "Education", id: "education" },
-  { label: "Skill", id: "skill" },
-  { label: "Projects", id: "projects" },
+  { label: "Home", href: "#home" },
+  { label: "Experiences", href: "#experiences" },
+  { label: "Education", href: "#education" },
+  { label: "Skill", href: "#skill" },
+  { label: "Projects", href: "#projects" },
 ];
 
+/* ==================================================
+   HEADER
+================================================== */
+
 export default function Header() {
-  const [active, setActive] = useState("Home");
+  const [active, setActive] = useState(
+    headerSettings.defaultActiveHref
+  );
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -34,7 +89,6 @@ export default function Header() {
         return;
       }
 
-      // Ignore tiny movements to prevent flickering.
       if (Math.abs(currentY - previousY) < 8) return;
 
       const scrollingDown = currentY > previousY;
@@ -48,14 +102,18 @@ export default function Header() {
       previousY = currentY;
     }
 
-    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const desktopQuery = window.matchMedia(
+      "(min-width: 1024px)"
+    );
 
     function closeDesktopMenu(event) {
       if (event.matches) setMenuOpen(false);
     }
 
     function handleKeyDown(event) {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
     }
 
     window.addEventListener("scroll", handleScroll, {
@@ -67,12 +125,15 @@ export default function Header() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("keydown", handleKeyDown);
-      desktopQuery.removeEventListener("change", closeDesktopMenu);
+      desktopQuery.removeEventListener(
+        "change",
+        closeDesktopMenu
+      );
     };
   }, []);
 
-  function selectItem(label) {
-    setActive(label);
+  function selectItem(href) {
+    setActive(href);
     setMenuOpen(false);
     setHidden(false);
   }
@@ -81,12 +142,25 @@ export default function Header() {
     <MotionConfig reducedMotion="user">
       <header
         inert={hidden ? true : undefined}
-        className={`fixed left-1/2 top-3 z-50 w-[94%] max-w-[1250px] -translate-x-1/2 md:top-6 md:w-[85%] ${
+        style={{
+          maxWidth: headerSettings.box.maxWidth,
+          "--header-mobile-width":
+            headerSettings.box.mobileWidth,
+          "--header-desktop-width":
+            headerSettings.box.desktopWidth,
+          "--header-mobile-top":
+            headerSettings.box.mobileTop,
+          "--header-desktop-top":
+            headerSettings.box.desktopTop,
+        }}
+        className={`fixed left-1/2 top-[var(--header-mobile-top)] z-50 w-[var(--header-mobile-width)] -translate-x-1/2 md:top-[var(--header-desktop-top)] md:w-[var(--header-desktop-width)] ${
           hidden ? "pointer-events-none" : ""
         }`}
       >
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: -24 }}
+          initial={
+            reduceMotion ? false : { opacity: 0, y: -24 }
+          }
           animate={{
             opacity: hidden ? 0 : 1,
             y: hidden ? "-150%" : 0,
@@ -104,15 +178,25 @@ export default function Header() {
               />
 
               <div className="relative flex items-center justify-between gap-3">
+                {/* Image logo */}
                 <motion.a
-                  href="#home"
-                  onClick={() => selectItem("Home")}
+                  href={headerSettings.logo.href}
+                  onClick={() =>
+                    selectItem(headerSettings.logo.href)
+                  }
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.96 }}
-                  aria-label="MRHK home"
-                  className="shrink-0 font-serif text-2xl font-bold italic tracking-[-2px] text-white focus-visible:outline-red-500"
+                  aria-label={headerSettings.logo.ariaLabel}
+                  className="block shrink-0 focus-visible:outline-red-500"
                 >
-                  <span className="text-red-500">MR</span>HK
+                  <img
+                    src={headerSettings.logo.image}
+                    alt={headerSettings.logo.imageAlt}
+                    draggable={false}
+                    className={
+                      headerSettings.logo.imageClassName
+                    }
+                  />
                 </motion.a>
 
                 {/* Desktop navigation */}
@@ -121,18 +205,22 @@ export default function Header() {
                   className="hidden lg:block"
                 >
                   <ul className="flex items-center gap-5 xl:gap-8">
-                    {navItems.map(({ label, id }) => (
-                      <li key={id}>
+                    {navItems.map(({ label, href }) => (
+                      <li key={href}>
                         <motion.a
-                          href={`#${id}`}
-                          onClick={() => selectItem(label)}
+                          href={href}
+                          onClick={() => selectItem(href)}
                           aria-current={
-                            active === label ? "location" : undefined
+                            active === href
+                              ? "location"
+                              : undefined
                           }
                           whileHover={{ y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          className={`block text-[12px] font-bold uppercase tracking-[1.4px] transition-colors focus-visible:outline-red-500 xl:text-[14px] ${
-                            active === label
+                          className={`block transition-colors focus-visible:outline-red-500 ${
+                            headerSettings.menu.desktopFontClassName
+                          } ${
+                            active === href
                               ? "text-red-500"
                               : "text-black hover:text-red-500"
                           }`}
@@ -145,8 +233,9 @@ export default function Header() {
                 </nav>
 
                 <div className="flex shrink-0 items-center gap-3">
+                  {/* Enquire button */}
                   <motion.a
-                    href="#contact"
+                    href={headerSettings.button.href}
                     onClick={() => setMenuOpen(false)}
                     whileHover={{
                       scale: 1.04,
@@ -154,16 +243,20 @@ export default function Header() {
                         "inset 0 0 16px rgba(239,68,68,0.5), 0 0 22px rgba(239,68,68,0.35)",
                     }}
                     whileTap={{ scale: 0.96 }}
-                    className="rounded-full border border-[#5C0B1A] bg-[#5C0B1A] px-4 py-2 text-xs font-semibold text-white shadow-[inset_0_0_12px_rgba(239,68,68,0.35),0_0_10px_rgba(239,68,68,0.2)] focus-visible:outline-red-500 md:px-7 md:text-sm"
+                    className={`rounded-full border border-[#5C0B1A] bg-[#5C0B1A] px-4 py-2 text-white shadow-[inset_0_0_12px_rgba(239,68,68,0.35),0_0_10px_rgba(239,68,68,0.2)] focus-visible:outline-red-500 md:px-7 ${headerSettings.button.fontClassName}`}
                   >
-                    Enquire
+                    {headerSettings.button.text}
                   </motion.a>
 
                   {/* Mobile menu button */}
                   <button
                     type="button"
-                    onClick={() => setMenuOpen((open) => !open)}
-                    aria-label={menuOpen ? "Close menu" : "Open menu"}
+                    onClick={() =>
+                      setMenuOpen((open) => !open)
+                    }
+                    aria-label={
+                      menuOpen ? "Close menu" : "Open menu"
+                    }
                     aria-expanded={menuOpen}
                     aria-controls="mobile-navigation"
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-red-500/40 text-black focus-visible:outline-red-500 lg:hidden"
@@ -197,28 +290,41 @@ export default function Header() {
             </div>
           </div>
 
+          {/* Mobile navigation */}
           <AnimatePresence>
             {menuOpen && (
               <motion.nav
                 id="mobile-navigation"
                 aria-label="Mobile navigation"
-                initial={{ opacity: 0, y: reduceMotion ? 0 : -10 }}
+                initial={{
+                  opacity: 0,
+                  y: reduceMotion ? 0 : -10,
+                }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: reduceMotion ? 0 : -10 }}
-                transition={{ duration: reduceMotion ? 0 : 0.2 }}
+                exit={{
+                  opacity: 0,
+                  y: reduceMotion ? 0 : -10,
+                }}
+                transition={{
+                  duration: reduceMotion ? 0 : 0.2,
+                }}
                 className="mt-3 max-h-[65vh] overflow-y-auto rounded-3xl border border-red-500/50 bg-[#F2EFE9] p-3 shadow-lg lg:hidden"
               >
                 <ul className="space-y-1">
-                  {navItems.map(({ label, id }) => (
-                    <li key={id}>
+                  {navItems.map(({ label, href }) => (
+                    <li key={href}>
                       <a
-                        href={`#${id}`}
-                        onClick={() => selectItem(label)}
+                        href={href}
+                        onClick={() => selectItem(href)}
                         aria-current={
-                          active === label ? "location" : undefined
+                          active === href
+                            ? "location"
+                            : undefined
                         }
-                        className={`block rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors focus-visible:outline-red-500 ${
-                          active === label
+                        className={`block rounded-xl px-4 py-3 transition-colors focus-visible:outline-red-500 ${
+                          headerSettings.menu.mobileFontClassName
+                        } ${
+                          active === href
                             ? "bg-red-500/10 text-red-500"
                             : "text-black hover:bg-red-500/5 hover:text-red-500"
                         }`}
