@@ -9,21 +9,24 @@ import ServicesSection from "./components/ServicesSection";
 import ProjectsSlider from "./components/ProjectsSlider";
 import ContactServices from "./components/ContactServices";
 import Footer from "./components/Footer";
-export default function App() {
 
-  
+export default function App() {
   return (
     <>
-      <Header />
-      <Hero />
-      <CustomCursor />
-      <TextMarquee />
-      <WorkProcess />
-      <AboutSection />
       <SmoothScroll />
-      <ServicesSection />
-      <ProjectsSlider />
-      <ContactServices />
+      <CustomCursor />
+      <Header />
+
+      <main className="relative z-10 bg-[#F2EFE9]">
+        <Hero />
+        <TextMarquee />
+        <WorkProcess />
+        <AboutSection />
+        <ServicesSection />
+        <ProjectsSlider />
+        <ContactServices />
+      </main>
+
       <Footer />
     </>
   );
