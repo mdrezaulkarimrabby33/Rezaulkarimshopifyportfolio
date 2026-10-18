@@ -7,14 +7,14 @@ import {
 } from "framer-motion";
 
 const images = [
-  "/img/Golden-Hour Lakeside Dock Portrait.png",
-  "/img/imagehero.png",
-  "/img/about-portrait.png",
-  "/img/Golden-Hour Lakeside Dock Portrait.png",
-  "/img/imagehero.png",
-  "/img/about-portrait.png",
-  "/img/Golden-Hour Lakeside Dock Portrait.png",
-  "/img/about-portrait.png",
+  "public/img/shopify1.jpg",
+  "public/img/seo 4.png",
+  "public/img/SEO and Shopify, built to be found.png",
+  "public/img/thedigitalartist-wordpress-2173519_1920.jpg",
+  "public/img/shopify 2.jpg",
+  "public/img/seo 3.jpg",
+  "public/img/seo 2.jpg",
+  "public/img/Shopify Bag on Oxblood Pedestal.png",
 ];
 
 const steps = [

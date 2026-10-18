@@ -18,7 +18,7 @@ const logoSettings = {
 
 const footerContent = {
   heading: "Have a project in mind?",
-  email: "karimrabby15@gmail.com",
+  email: "maktech@gmail.com",
   brand: "REZAUL",
   copyrightName: "Rabby Maktech",
   credit: "Crafted by Rabby Maktech",
@@ -50,7 +50,7 @@ const ease = [0.22, 1, 0.36, 1];
    ROLLING LINKS
 ========================================= */
 
-function RollingLink({ label, href }) {
+function RollingLink({ label, href, large = false }) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -61,11 +61,11 @@ function RollingLink({ label, href }) {
       animate="rest"
       whileHover="hover"
       whileFocus="hover"
-      className="inline-flex min-h-11 items-center text-[#AAA69F] outline-none transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500"
+      className={`inline-flex min-h-11 items-center ${large ? "text-white font-semibold" : "text-[#AAA69F]"} outline-none transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500`}
     >
       <span
         aria-hidden="true"
-        className="flex overflow-hidden font-mono text-[10px] uppercase leading-5"
+        className={`flex overflow-hidden font-mono uppercase ${large ? "text-[18px] leading-7 sm:text-[20px]" : "text-[10px] leading-5"}`}
       >
         {Array.from(label).map((character, index) => (
           <span key={index} className="relative block">
@@ -379,6 +379,201 @@ function FooterWordmark() {
    FOOTER
 ========================================= */
 
+/* =========================================
+   RED LIGHT RAYS — FRAMER MOTION
+========================================= */
+
+// Existing charcoal stays visible beneath soft, slowly sweeping red rays.
+function FooterRedRays() {
+  const reduceMotion = useReducedMotion();
+  const layerRef = useRef(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!layer) return;
+    let inView = false;
+    const update = () => setActive(inView && !document.hidden);
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      update();
+    });
+    observer.observe(layer);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, []);
+
+  const animateRays = active && !reduceMotion;
+  const rays = [
+    { left: "-52%", top: "-105%", angle: -24, duration: 16, strength: 0.56 },
+    { left: "0%", top: "-115%", angle: 18, duration: 21, strength: 0.4 },
+    { left: "-25%", top: "-70%", angle: -8, duration: 25, strength: 0.28 },
+  ];
+
+  return (
+    <div
+      ref={layerRef}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+      style={{ zIndex: 0, contain: "paint" }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{ background: "radial-gradient(ellipse at 15% 15%, rgba(150, 12, 25, 0.27), transparent 65%)" }}
+      />
+      {rays.map((ray, index) => (
+        <motion.div
+          key={index}
+          className="absolute"
+          style={{
+            left: ray.left,
+            top: ray.top,
+            width: "180%",
+            height: "230%",
+            transformOrigin: "50% 0%",
+            background: "conic-gradient(from 155deg at 50% 0%, transparent 0deg, rgba(239, 30, 50, 0.03) 8deg, rgba(239, 30, 50, 0.48) 15deg, rgba(255, 65, 75, 0.16) 20deg, transparent 28deg, transparent 35deg, rgba(220, 18, 35, 0.32) 40deg, transparent 48deg, transparent 360deg)",
+            filter: "blur(12px)",
+          }}
+          initial={false}
+          animate={animateRays ? {
+            rotate: [ray.angle, ray.angle + 18, ray.angle - 8, ray.angle],
+            x: ["-3%", "4%", "0%", "-3%"],
+            opacity: [ray.strength * 0.65, ray.strength, ray.strength * 0.8, ray.strength * 0.65],
+          } : { rotate: ray.angle, x: "0%", opacity: ray.strength * 0.7 }}
+          transition={animateRays ? {
+            duration: ray.duration,
+            ease: "easeInOut",
+            repeat: Infinity,
+          } : { duration: 0 }}
+        />
+      ))}
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(to bottom, rgba(29,27,24,0.12), rgba(29,27,24,0.2) 55%, rgba(29,27,24,0.7))" }}
+      />
+    </div>
+  );
+}
+
+/* Cursor spotlight reveals a background of code characters. */
+function FooterAlphabetHover({ footerRef }) {
+  const canvasRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const footer = footerRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!footer || !canvas || !ctx) return;
+
+    const alphabet = "{% comment %}, shop.name ,% form 'product,assign %, % section 'featured-collection' %} ";
+    const pointer = { x: 0, y: 0, inside: false };
+    let width = 0, height = 0, frame = 0, lastPaint = 0;
+    let opacity = 0, previousTime = 0;
+    let cells = [];
+
+    function paint(time) {
+      frame = 0;
+      if (document.hidden) return;
+      const dt = previousTime ? Math.min(time - previousTime, 64) : 16;
+      previousTime = time;
+      const target = pointer.inside ? 1 : 0;
+      opacity = reduceMotion ? target : opacity + (target - opacity) * (1 - Math.exp(-dt / 140));
+      ctx.clearRect(0, 0, width, height);
+      if (opacity > 0.005) {
+        const glow = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 240);
+        glow.addColorStop(0, `rgba(239,35,55,${0.13 * opacity})`);
+        glow.addColorStop(1, "rgba(239,35,55,0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, width, height);
+        ctx.font = "13px ui-monospace, SFMono-Regular, Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const tick = reduceMotion ? 0 : Math.floor(time / 160);
+        cells.forEach((cell, index) => {
+          const distance = Math.hypot(cell.x - pointer.x, cell.y - pointer.y);
+          const light = Math.max(0, 1 - distance / 240);
+          if (!light) return;
+          const alpha = light * light * opacity * 0.85;
+          // A few characters change each tick, rather than flashing the whole grid.
+          const shift = (index % 7 === tick % 7) ? tick : Math.floor(tick / 7);
+          ctx.fillStyle = `rgba(255,100,115,${alpha})`;
+          ctx.fillText(alphabet[(cell.seed + shift) % alphabet.length], cell.x, cell.y);
+        });
+      }
+      const fading = Math.abs(target - opacity) > 0.005;
+      if ((pointer.inside && !reduceMotion) || fading) schedule();
+      else if (!pointer.inside) ctx.clearRect(0, 0, width, height);
+    }
+    function schedule() {
+      if (!frame && !document.hidden) frame = requestAnimationFrame(tick);
+    }
+    function tick(time) {
+      // Cap decorative canvas updates at about 30fps.
+      if (time - lastPaint < 32) { frame = requestAnimationFrame(tick); return; }
+      lastPaint = time;
+      paint(time);
+    }
+    function resize() {
+      const bounds = footer.getBoundingClientRect();
+      width = bounds.width;
+      height = bounds.height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.max(1, Math.round(width * dpr));
+      canvas.height = Math.max(1, Math.round(height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cells = [];
+      for (let y = 18, row = 0; y < height; y += 30, row++) {
+        for (let x = 18, col = 0; x < width; x += 28, col++) {
+          cells.push({ x, y, seed: (row * 17 + col * 31) % alphabet.length });
+        }
+      }
+      schedule();
+    }
+    function move(event) {
+      if (event.pointerType === "touch") return;
+      const bounds = footer.getBoundingClientRect();
+      pointer.x = event.clientX - bounds.left;
+      pointer.y = event.clientY - bounds.top;
+      pointer.inside = true;
+      schedule();
+    }
+    function leave() { pointer.inside = false; schedule(); }
+    function visibility() {
+      previousTime = 0;
+      if (document.hidden) { cancelAnimationFrame(frame); frame = 0; }
+      else { pointer.inside = false; schedule(); }
+    }
+    const observer = new ResizeObserver(resize);
+    observer.observe(footer);
+    footer.addEventListener("pointermove", move, { passive: true });
+    footer.addEventListener("pointerleave", leave);
+    footer.addEventListener("pointercancel", leave);
+    document.addEventListener("visibilitychange", visibility);
+    resize();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      footer.removeEventListener("pointermove", move);
+      footer.removeEventListener("pointerleave", leave);
+      footer.removeEventListener("pointercancel", leave);
+      document.removeEventListener("visibilitychange", visibility);
+    };
+  }, [footerRef, reduceMotion]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      style={{ zIndex: 1 }}
+    />
+  );
+}
+
 export default function Footer() {
   const ref = useRef(null);
   const reduceMotion = useReducedMotion();
@@ -418,7 +613,9 @@ export default function Footer() {
       }}
       className="z-0 isolate bg-[#1D1B18] px-5 pb-3 pt-14 text-[#F2EFE9] sm:px-8 sm:pb-5 sm:pt-20 lg:px-12 lg:pt-24"
     >
-      <div className="mx-auto w-full max-w-[1400px]">
+      <FooterRedRays />
+      <FooterAlphabetHover footerRef={ref} />
+      <div className="relative z-10 mx-auto w-full max-w-[1400px]">
         {/* Heading */}
         <h2
           id="footer-heading"
@@ -450,7 +647,7 @@ export default function Footer() {
             <ul className="flex flex-wrap items-center gap-x-5 gap-y-1 sm:gap-x-7">
               {menuLinks.map((link) => (
                 <li key={link.href}>
-                  <RollingLink {...link} />
+                  <RollingLink {...link} large />
                 </li>
               ))}
             </ul>
