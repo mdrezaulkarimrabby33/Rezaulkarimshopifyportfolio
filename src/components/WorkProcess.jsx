@@ -6,15 +6,16 @@ import {
   useTransform,
 } from "framer-motion";
 
+
 const images = [
-  "public/img/shopify1.jpg",
-  "public/img/seo 4.png",
-  "public/img/SEO and Shopify, built to be found.png",
-  "public/img/thedigitalartist-wordpress-2173519_1920.jpg",
-  "public/img/shopify 2.jpg",
-  "public/img/seo 3.jpg",
-  "public/img/seo 2.jpg",
-  "public/img/Shopify Bag on Oxblood Pedestal.png",
+  "/img/shopify1.jpg",
+  "/img/seo%204.png",
+  "/img/SEO%20and%20Shopify,%20built%20to%20be%20found.png",
+  "/img/thedigitalartist-wordpress-2173519_1920.jpg",
+  "/img/shopify%202.jpg",
+  "/img/seo%203.jpg",
+  "/img/seo%202.jpg",
+  "/img/Shopify%20Bag%20on%20Oxblood%20Pedestal.png",
 ];
 
 const steps = [

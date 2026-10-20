@@ -47,7 +47,7 @@ const services = [
     category: "ECOMMERCE DEVELOPMENT",
     description:
       "Custom storefronts built for a smooth shopping experience.",
-    image: "/img/Golden-Hour Lakeside Dock Portrait.png",
+    image: "img/Shopify Bag on Oxblood Pedestal.png",
     imageAlt: "Shopify development service",
     imagePosition: "center",
     href: "#contact",
@@ -59,7 +59,7 @@ const services = [
     category: "WEBSITE DEVELOPMENT",
     description:
       "Flexible, fast websites that are easy to manage and grow.",
-    image: "/img/imagehero.png",
+    image: "img/Blue WordPress Medallion on Burgundy Cylinder.png",
     imageAlt: "WordPress development service",
     imagePosition: "center",
     href: "#contact",
@@ -71,7 +71,7 @@ const services = [
     category: "SEARCH & STRATEGY",
     description:
       "Technical improvements and content that help you get found.",
-    image: "/img/about-portrait.png",
+    image: "/img/seo 4.png",
     imageAlt: "Search engine optimization service",
     imagePosition: "center",
     href: "#contact",

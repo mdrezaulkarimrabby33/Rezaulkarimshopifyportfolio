@@ -9,9 +9,9 @@ import {
 // নিজের ছবি public/img ফোল্ডারে রাখো।
 // শুধু এই ৩টা path বদলালেই হবে।
 const serviceImages = {
-  shopify: "/img/Golden-Hour Lakeside Dock Portrait.png",
-  wordpress: "/img/imagehero.png",
-  seo: "/img/about-portrait.png",
+  shopify: "img/shopify1.jpg",
+  wordpress: "img/thedigitalartist-wordpress-2173519_1920.jpg",
+  seo: "img/seo 3.jpg",
 };
 
 const services = [
