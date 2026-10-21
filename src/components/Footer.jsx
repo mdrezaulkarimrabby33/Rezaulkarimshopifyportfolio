@@ -19,7 +19,7 @@ const logoSettings = {
 const footerContent = {
   heading: "Have a project in mind?",
   email: "maktech@gmail.com",
-  brand: "REZAUL",
+  brand: "REZAUL MAKTECH",
   copyrightName: "Rabby Maktech",
   credit: "Crafted by Rabby Maktech",
 };

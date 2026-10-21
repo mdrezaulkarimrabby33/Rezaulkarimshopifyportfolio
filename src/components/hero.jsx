@@ -1,4 +1,6 @@
-import { useRef } from "react";
+"use client";
+
+import { useEffect, useRef } from "react";
 import {
   motion,
   MotionConfig,
@@ -262,14 +264,257 @@ function Portrait() {
   );
 }
 
+function HeroBackground() {
+  const pointer = useRef({ x: -1000, y: -1000, active: false });
+  const reduced = useReducedMotion();
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    let width = 0, height = 0, columns = 0, points = [];
+    let frame = 0, previous = 0;
+    const spacing = 42;
+
+    function resize() {
+      ({ width, height } = canvas.getBoundingClientRect());
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      columns = Math.ceil(width / spacing) + 2;
+      const rows = Math.ceil(height / spacing) + 2;
+      points = Array.from({ length: columns * rows }, (_, index) => {
+        const x = (index % columns) * spacing;
+        const y = Math.floor(index / columns) * spacing;
+        return { x, y, homeX: x, homeY: y, vx: 0, vy: 0 };
+      });
+      requestDraw();
+    }
+
+    function requestDraw() {
+      if (!frame) frame = requestAnimationFrame(draw);
+    }
+
+    function draw(time) {
+      frame = 0;
+      const step = previous ? Math.min((time - previous) / 16.667, 2) : 1;
+      previous = time;
+      const mouse = pointer.current;
+      let moving = false;
+      context.clearRect(0, 0, width, height);
+      for (const p of points) {
+        let tx = p.homeX, ty = p.homeY;
+        if (mouse.active && !reduced) {
+          const dx = p.homeX - mouse.x, dy = p.homeY - mouse.y;
+          const distance = Math.hypot(dx, dy);
+          const influence = Math.max(0, 1 - distance / 240);
+          const force = influence * influence * 52;
+          tx += (dx / (distance || 1)) * force;
+          ty += (dy / (distance || 1)) * force;
+        }
+        p.vx = (p.vx + (tx - p.x) * 0.055 * step) * Math.pow(0.77, step);
+        p.vy = (p.vy + (ty - p.y) * 0.055 * step) * Math.pow(0.77, step);
+        p.x += p.vx * step;
+        p.y += p.vy * step;
+        if (Math.abs(tx - p.x) + Math.abs(ty - p.y) + Math.abs(p.vx) + Math.abs(p.vy) > 0.08) moving = true;
+      }
+      context.lineWidth = 0.65;
+      function edge(a, b) {
+        const distance = Math.hypot((a.x + b.x) / 2 - mouse.x, (a.y + b.y) / 2 - mouse.y);
+        const glow = mouse.active && !reduced ? Math.max(0, 1 - distance / 280) : 0;
+        // Warm neutral lines at rest, muted burgundy/red around the pointer.
+        const red = Math.round(117 + glow * 70);
+        const green = Math.round(111 - glow * 57);
+        const blue = Math.round(104 - glow * 38);
+        context.strokeStyle = `rgba(${red},${green},${blue},${0.045 + glow * 0.19})`;
+        context.beginPath(); context.moveTo(a.x, a.y); context.lineTo(b.x, b.y); context.stroke();
+      }
+      points.forEach((p, index) => {
+        const col = index % columns;
+        const right = points[index + 1], below = points[index + columns];
+        if (col < columns - 1 && right) edge(p, right);
+        if (below) edge(p, below);
+        if (col < columns - 1 && points[index + columns + 1]) edge(p, points[index + columns + 1]);
+        if (col > 0 && points[index + columns - 1]) edge(p, points[index + columns - 1]);
+      });
+      if (moving) requestDraw();
+      else previous = 0;
+    }
+    function wake(event) {
+      if (reduced || event.pointerType !== "mouse") return;
+      const bounds = canvas.getBoundingClientRect();
+      pointer.current = {
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+        active: true,
+      };
+      requestDraw();
+    }
+    function reset() {
+      pointer.current.active = false;
+      requestDraw();
+    }
+    const host = canvas.parentElement;
+    host.addEventListener("pointermove", wake);
+    host.addEventListener("pointerleave", reset);
+    host.addEventListener("pointercancel", reset);
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
+    return () => {
+      observer.disconnect(); cancelAnimationFrame(frame);
+      host.removeEventListener("pointermove", wake);
+      host.removeEventListener("pointerleave", reset);
+      host.removeEventListener("pointercancel", reset);
+    };
+  }, [pointer, reduced]);
+
+  return <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 h-full w-full" />;
+}
+
+function HoverWords() {
+  const canvasRef = useRef(null);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || reduced) return;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    const host = canvas.parentElement;
+    const words = [
+      "ACTIVATE", "STIMULATE", "INNOVATE", "RESONATE", "ILLUMINATE",
+      "CAPTIVATE", "ELEVATE", "PARTICIPATE", "COLLABORATE", "ORCHESTRATE",
+    ];
+
+    // Reference behavior: one label, 0.08 interpolation each animation frame,
+    // next word after 20 CSS px of smoothed movement; no floating/fading trail.
+    const trailDelay = 0.3;
+    const follow = Math.min(trailDelay * 1.5, 0.2) * 0.4;
+    const overscan = 120;
+    const target = { x: 0, y: 0 };
+    const label = { x: 0, y: 0 };
+    const lastChange = { x: 0, y: 0 };
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    let width = 0, height = 0, dpr = 1;
+    let wordIndex = 0, frame = 0, leaveTimer = null, active = false;
+
+    function resize() {
+      const bounds = canvas.getBoundingClientRect();
+      width = bounds.width;
+      height = bounds.height;
+      const safari = /Safari/i.test(navigator.userAgent) &&
+        !/Chrome|CriOS|Chromium|Edg/i.test(navigator.userAgent);
+      dpr = Math.min(window.devicePixelRatio || 1, safari ? 1.5 : 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Resting color matches the hero's muted warm-gray labels.
+      context.font = "600 13px monospace";
+      context.textBaseline = "alphabetic";
+      context.fillStyle = "#756f68";
+      context.shadowColor = "transparent";
+      context.shadowBlur = 0;
+    }
+
+    function draw() {
+      frame = 0;
+      context.clearRect(0, 0, width, height);
+      if (!active) return;
+      label.x += (target.x - label.x) * follow;
+      label.y += (target.y - label.y) * follow;
+      const dx = label.x - lastChange.x;
+      const dy = label.y - lastChange.y;
+      if (dx * dx + dy * dy > 20 * 20) {
+        wordIndex = (wordIndex + 1) % words.length;
+        lastChange.x = label.x;
+        lastChange.y = label.y;
+      }
+      // While the pointer is active, use Tailwind red-500 for a crisp accent.
+      context.globalAlpha = 1;
+      context.fillStyle = "#ef4444";
+      context.shadowColor = "rgba(239, 68, 68, 0.18)";
+      context.shadowBlur = 5;
+      // Reference uses a 12-device-pixel offset on an overscanned canvas.
+      context.fillText(words[wordIndex], label.x - overscan + 12 / dpr, label.y - overscan);
+      context.globalAlpha = 1;
+      context.shadowBlur = 0;
+      // Keep drawing while hovered, including when the pointer stops.
+      frame = requestAnimationFrame(draw);
+    }
+
+    function enter(event) {
+      if (event.pointerType !== "mouse" || !finePointer.matches) return;
+      if (leaveTimer !== null) {
+        clearTimeout(leaveTimer);
+        leaveTimer = null;
+      }
+      active = true;
+      if (!frame) frame = requestAnimationFrame(draw);
+    }
+
+    function move(event) {
+      if (event.pointerType !== "mouse" || !finePointer.matches) return;
+      const bounds = canvas.getBoundingClientRect();
+      target.x = event.clientX - bounds.left + overscan;
+      target.y = event.clientY - bounds.top + overscan;
+      enter(event);
+    }
+
+    function stop() {
+      if (leaveTimer !== null) clearTimeout(leaveTimer);
+      leaveTimer = null;
+      active = false;
+      cancelAnimationFrame(frame);
+      frame = 0;
+      context.clearRect(0, 0, width, height);
+    }
+
+    function leave() {
+      if (leaveTimer !== null || !active) return;
+      leaveTimer = setTimeout(stop, 150);
+    }
+
+    function visibility() {
+      if (document.hidden) stop();
+    }
+
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
+    host.addEventListener("pointerenter", enter);
+    host.addEventListener("pointermove", move, { passive: true });
+    host.addEventListener("pointerleave", leave);
+    host.addEventListener("pointercancel", stop);
+    window.addEventListener("blur", stop);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      stop();
+      observer.disconnect();
+      host.removeEventListener("pointerenter", enter);
+      host.removeEventListener("pointermove", move);
+      host.removeEventListener("pointerleave", leave);
+      host.removeEventListener("pointercancel", stop);
+      window.removeEventListener("blur", stop);
+      document.removeEventListener("visibilitychange", visibility);
+    };
+  }, [reduced]);
+
+  return <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 h-full w-full" />;
+}
+
 export default function Hero() {
   return (
     <MotionConfig reducedMotion="user">
       <section
         id="home"
-        className="min-h-screen bg-[#f2efe9] px-6 pb-6 pt-36 text-[#201e1b] md:px-[6%]"
+        className="relative isolate min-h-screen bg-[#f2efe9] px-6 pb-6 pt-36 text-[#201e1b] md:px-[6%]"
       >
-        <div className="relative mx-auto grid max-w-[1400px] gap-12 md:grid-cols-[1.2fr_1fr] md:gap-0">
+        <HeroBackground />
+        <HoverWords />
+        <div className="relative z-10 mx-auto grid max-w-[1400px] gap-12 md:grid-cols-[1.2fr_1fr] md:gap-0">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -333,7 +578,7 @@ export default function Hero() {
           <Portrait />
         </div>
 
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 border-t border-[#c9c3b9] pt-6 font-mono text-[8px] text-[#827a70]">
+        <div className="relative z-10 mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 border-t border-[#c9c3b9] pt-6 font-mono text-[8px] text-[#827a70]">
           <span>THOUGHTFUL CODE. MEANINGFUL EXPERIENCES.</span>
           <span className="text-lg text-red-500">✦</span>
           <span>DESIGNED WITH INTENTION ↗</span>

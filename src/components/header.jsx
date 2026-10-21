@@ -8,6 +8,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 
+
 /* ==================================================
    EDIT HERE — শুধু এই অংশ পরিবর্তন করলেই হবে
 ================================================== */
@@ -479,6 +480,7 @@ export default function Header() {
             )}
           </AnimatePresence>
         </motion.div>
+        
       </header>
     </MotionConfig>
   );
