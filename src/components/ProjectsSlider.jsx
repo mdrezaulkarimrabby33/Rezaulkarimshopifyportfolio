@@ -75,7 +75,7 @@ const projects = [
     id: "project-4",
     newTab: true,
     imagePosition: "top",
-    title: "A Private Investment & Charitable site",
+    title: "Private Investment & Charitable site",
     category: "WORDPRESS",
     description: "A Private Investment & Charitabl legacy built website.",
     image: "img/siuolroffa.png",
@@ -131,7 +131,7 @@ const projects = [
     category: "SHOPIFY",
     description: "A fully custom liquid shopify store.",
     image: "img/mirail.png",
-    href: "https://igniteafrica.tv/",
+    href: "https://mirailabstore.com/",
   },
 
    {
@@ -143,6 +143,17 @@ const projects = [
     description: "A branded flooring shopify store.",
     image: "img/flors revo.png",
     href: "https://www.floorsrevolution.com/",
+  },
+
+  {
+    id: "project-11",
+    newTab: true,
+    imagePosition: "top",
+    title: "Chosen Creatine Gummies",
+    category: "SHOPIFY",
+    description: "A branded one product eye -caching  shopify store.",
+    image: "img/choosen.png",
+    href: "https://chosengreatness.com/",
   },
 ];
 
