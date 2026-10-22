@@ -123,7 +123,7 @@ export default function AboutSection() {
               <span className="text-red-500">.</span>
             </h2>
 
-            <div className="mt-7 space-y-4 text-sm leading-7 text-[#AAA69F] sm:mt-8 sm:text-base sm:leading-8">
+            <div className="mt-7 space-y-4 text-lg leading-7 text-[#AAA69F] sm:mt-8 sm:text-base sm:leading-8">
               <p>
                 I'm Rabby Maktech, a Shopify developer,
                 WordPress developer, and SEO specialist

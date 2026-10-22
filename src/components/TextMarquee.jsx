@@ -28,7 +28,7 @@ export default function TextMarquee() {
   return (
     <section
       aria-label="Development, Design Thinking, Search and Strategy"
-      className="m-0 overflow-hidden bg-[#F2EFE9] py-10 sm:py-14 lg:py-20"
+      className="m-0 overflow-hidden bg-bg py-10 transition-colors duration-300 sm:py-14 lg:py-20"
     >
       <motion.div
         aria-hidden="true"
@@ -51,7 +51,7 @@ export default function TextMarquee() {
                 key={text}
                 className="flex shrink-0 items-center gap-10 pr-10 sm:gap-20 sm:pr-20 lg:gap-32 lg:pr-32"
               >
-                <span className="block whitespace-nowrap font-['Oswald',sans-serif] text-2xl font-semibold uppercase leading-none tracking-tight text-[#62615E] sm:text-4xl lg:text-5xl">
+                <span className="block whitespace-nowrap font-['Oswald',sans-serif] text-2xl font-semibold uppercase leading-none tracking-tight text-muted transition-colors duration-300 sm:text-4xl lg:text-5xl">
                   {text}
                 </span>
 

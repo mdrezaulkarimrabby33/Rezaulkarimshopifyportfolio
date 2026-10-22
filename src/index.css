@@ -1,10 +1,54 @@
 @import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
+/* =========================================================
+   THEME COLORS
+   Light = default (your current cream design)
+   Dark  = applied when <html class="dark">
+   Replace the light hex values with your exact ones if needed.
+   ========================================================= */
+:root {
+  --bg: #f3efe6;       /* main cream background */
+  --bg-alt: #e6e1d8;   /* beige sections (e.g. "Good work is never an accident") */
+  --surface: #ffffff;  /* cards */
+  --fg: #1a1816;       /* headings / main text */
+  --muted: #6b665e;    /* small / secondary text */
+  --line: #d8d2c6;     /* borders / dividers */
+  --accent: #e11d2e;   /* red accent */
+}
+
+.dark {
+  --bg: #000000;       /* full black */
+  --bg-alt: #000000;   /* full black (sections stay separated by borders) */
+  --surface: #0d0d0d;  /* cards: barely lighter than black */
+  --fg: #f3efe6;
+  --muted: #9a948a;
+  --line: #262626;
+  --accent: #ff3b4a;
+  color-scheme: dark;
+}
+
+/* Makes these Tailwind classes available:
+   bg-bg, bg-bg-alt, bg-surface, text-fg, text-muted, border-line, bg-accent, text-accent */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-alt: var(--bg-alt);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
 body {
   margin: 0;
-  background: #030712;
+  background: var(--bg);
+  color: var(--fg);
   font-family: "DM Sans", sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 #root {
@@ -29,7 +73,22 @@ html {
   scroll-padding-top: 120px;
 }
 
-/* Moving red border */
+/* Smooth color change for themed elements only
+   (kept off "*" so it doesn't fight Framer Motion animations) */
+.bg-bg,
+.bg-bg-alt,
+.bg-surface,
+.text-fg,
+.text-muted,
+.border-line {
+  transition-property: background-color, border-color, color;
+  transition-duration: 300ms;
+  transition-timing-function: ease;
+}
+
+/* =========================================================
+   MOVING RED BORDER (header)
+   ========================================================= */
 @property --header-border-angle {
   syntax: "<angle>";
   initial-value: 0deg;

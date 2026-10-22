@@ -7,7 +7,7 @@ import {
   MotionConfig,
   useReducedMotion,
 } from "framer-motion";
-
+import ThemeToggle from "./ThemeToggle";
 
 /* ==================================================
    EDIT HERE — শুধু এই অংশ পরিবর্তন করলেই হবে
@@ -34,7 +34,7 @@ const headerConfig = {
     defaultActiveLink: "#home",
 
     // নাম, link ও order এখান থেকে বদলাও।
-    // বাইরের website link-ও দেওয়া যাবে।
+    // বাইরের website link-ও দেওয়া যাবে।
     items: [
       { label: "Home", href: "#home", newTab: false },
       {
@@ -97,9 +97,12 @@ const headerConfig = {
   },
 
   /* ---------- COLORS ---------- */
+  // background ও text এখন theme variable থেকে আসে (index.css),
+  // তাই light/dark mode-এ নিজে থেকেই বদলায়।
+  // Light = আগের cream (#F2EFE9 ~ var(--bg)), Dark = কালো।
   colors: {
-    background: "#F2EFE9",
-    text: "#000000",
+    background: "var(--bg)",
+    text: "var(--fg)",
     accent: "#EF4444",
     buttonBackground: "#5C0B1A",
     buttonText: "#FFFFFF",
@@ -269,7 +272,7 @@ export default function Header() {
           {/* Existing animated border */}
           <div className="header-moving-border relative rounded-full p-[2px] shadow-[0_0_35px_rgba(239,68,68,0.16)]">
             <div
-              className={`relative z-[1] overflow-hidden rounded-full bg-[var(--header-bg)] ${headerConfig.layout.padding}`}
+              className={`relative z-[1] overflow-hidden rounded-full bg-[var(--header-bg)] transition-colors duration-300 ${headerConfig.layout.padding}`}
             >
               <div
                 aria-hidden="true"
@@ -294,7 +297,7 @@ export default function Header() {
                     src={headerConfig.logo.image}
                     alt={headerConfig.logo.alt}
                     draggable={false}
-                    className="block h-auto w-[var(--logo-mobile-width)] object-contain sm:w-[var(--logo-desktop-width)]"
+                    className="block h-auto w-[var(--logo-mobile-width)] object-contain transition-[filter] duration-300 sm:w-[var(--logo-desktop-width)] [.dark_&]:[filter:invert(1)_hue-rotate(180deg)]"
                   />
                 </motion.a>
 
@@ -347,7 +350,10 @@ export default function Header() {
                   </ul>
                 </nav>
 
-                <div className="flex shrink-0 items-center gap-3">
+                <div className="flex shrink-0 items-center gap-2 md:gap-3">
+                  {/* Dark / Light mode toggle */}
+                  <ThemeToggle />
+
                   {/* Contact button */}
                   {headerConfig.button.show && (
                     <motion.a
@@ -466,8 +472,8 @@ export default function Header() {
                             headerConfig.menu.mobileFont
                           } ${
                             active === href
-                              ? "bg-black/5 text-[var(--header-accent)]"
-                              : "text-[var(--header-text)] hover:bg-black/5 hover:text-[var(--header-accent)]"
+                              ? "bg-fg/5 text-[var(--header-accent)]"
+                              : "text-[var(--header-text)] hover:bg-fg/5 hover:text-[var(--header-accent)]"
                           }`}
                         >
                           {label}
@@ -480,7 +486,6 @@ export default function Header() {
             )}
           </AnimatePresence>
         </motion.div>
-        
       </header>
     </MotionConfig>
   );

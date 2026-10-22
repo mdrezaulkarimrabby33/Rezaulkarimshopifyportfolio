@@ -11,6 +11,7 @@ import {
   useTransform,
 } from "framer-motion";
 
+
 const portraitSrc = "/img/imagehero.png";
 
 function StarIcon() {
@@ -88,7 +89,7 @@ function Portrait() {
       onPointerMove={handleMove}
       onPointerLeave={resetPosition}
       onPointerCancel={resetPosition}
-      className="relative pb-12 md:border-l md:border-[#e5e0d8] md:px-6 md:pt-7"
+      className="relative pb-12 md:border-l md:border-line md:px-6 md:pt-7"
     >
       <motion.div
         style={reduceMotion ? {} : { x, y, scale }}
@@ -102,7 +103,7 @@ function Portrait() {
             duration: reduceMotion ? 0 : 1,
             delay: reduceMotion ? 0 : 2.3,
           }}
-          className="mb-7 flex justify-between font-mono text-[10px] text-[#756f68]"
+          className="mb-7 flex justify-between font-mono text-xs text-muted"
         >
           <span>[01]</span>
           <span>PORTRAIT</span>
@@ -170,7 +171,7 @@ function Portrait() {
                 duration: reduceMotion ? 0 : 0.8,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="relative aspect-[0.755/1] overflow-hidden border border-[#cac4ba] bg-[#ded9cd]"
+              className="relative aspect-[0.755/1] overflow-hidden border border-line bg-bg-alt"
             >
               <img
                 src={portraitSrc}
@@ -254,7 +255,7 @@ function Portrait() {
             duration: reduceMotion ? 0 : 1,
             delay: reduceMotion ? 0 : 2.3,
           }}
-          className="mt-1 flex justify-between font-mono text-[10px] text-[#756f68]"
+          className="mt-1 flex justify-between font-mono text-xs text-muted"
         >
           <span>RABBY MAKTECH</span>
           <span>© {new Date().getFullYear()}</span>
@@ -304,6 +305,8 @@ function HeroBackground() {
       previous = time;
       const mouse = pointer.current;
       let moving = false;
+      // Read the theme once per frame (not once per line)
+      const dark = document.documentElement.classList.contains("dark");
       context.clearRect(0, 0, width, height);
       for (const p of points) {
         let tx = p.homeX, ty = p.homeY;
@@ -321,15 +324,17 @@ function HeroBackground() {
         p.y += p.vy * step;
         if (Math.abs(tx - p.x) + Math.abs(ty - p.y) + Math.abs(p.vx) + Math.abs(p.vy) > 0.08) moving = true;
       }
-      context.lineWidth = 0.65;
+      context.lineWidth = dark ? 0.9 : 0.65;
       function edge(a, b) {
         const distance = Math.hypot((a.x + b.x) / 2 - mouse.x, (a.y + b.y) / 2 - mouse.y);
         const glow = mouse.active && !reduced ? Math.max(0, 1 - distance / 280) : 0;
-        // Warm neutral lines at rest, muted burgundy/red around the pointer.
-        const red = Math.round(117 + glow * 70);
-        const green = Math.round(111 - glow * 57);
-        const blue = Math.round(104 - glow * 38);
-        context.strokeStyle = `rgba(${red},${green},${blue},${0.045 + glow * 0.19})`;
+        // Light mode: warm gray lines (same as original).
+        // Dark mode: bright cream lines + strong red glow near the mouse.
+        const base = dark ? [215, 208, 196] : [117, 111, 104];
+        const hot = dark ? [255, 72, 84] : [187, 54, 66];
+        const mix = (i) => Math.round(base[i] + (hot[i] - base[i]) * glow);
+        const alpha = (dark ? 0.16 : 0.032) + glow * (dark ? 0.6 : 0.19);
+        context.strokeStyle = `rgba(${mix(0)},${mix(1)},${mix(2)},${alpha})`;
         context.beginPath(); context.moveTo(a.x, a.y); context.lineTo(b.x, b.y); context.stroke();
       }
       points.forEach((p, index) => {
@@ -363,8 +368,18 @@ function HeroBackground() {
     host.addEventListener("pointercancel", reset);
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
+
+    // Redraw the lines when the theme is toggled
+    const themeObserver = new MutationObserver(requestDraw);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
     return () => {
-      observer.disconnect(); cancelAnimationFrame(frame);
+      observer.disconnect();
+      themeObserver.disconnect();
+      cancelAnimationFrame(frame);
       host.removeEventListener("pointermove", wake);
       host.removeEventListener("pointerleave", reset);
       host.removeEventListener("pointercancel", reset);
@@ -510,7 +525,7 @@ export default function Hero() {
     <MotionConfig reducedMotion="user">
       <section
         id="home"
-        className="relative isolate min-h-screen bg-[#f2efe9] px-6 pb-6 pt-36 text-[#201e1b] md:px-[6%]"
+        className="relative isolate min-h-screen bg-bg px-6 pb-6 pt-36 text-fg transition-colors duration-300 md:px-[6%]"
       >
         <HeroBackground />
         <HoverWords />
@@ -521,9 +536,9 @@ export default function Hero() {
             transition={{ duration: 0.7 }}
             className="pb-8 md:pb-20 md:pr-14"
           >
-            <div className="mb-8 flex items-center gap-5 font-mono text-[10px] text-[#77716a]">
+            <div className="mb-8 flex items-center gap-5 font-mono text-xs text-muted">
               <span>01 / HELLO, I'M</span>
-              <span className="h-px w-12 bg-[#cec9c1]" />
+              <span className="h-px w-12 bg-line" />
             </div>
 
             <h1 className="font-display text-[clamp(72px,8.5vw,116px)] font-extrabold leading-[0.96] tracking-[-2px]">
@@ -532,7 +547,7 @@ export default function Hero() {
               </span>
               <span className="block">REZAUL KARIM</span>
               <span className="block">
-               RABBY<span className="text-red-500">.</span>
+                RABBY<span className="text-red-500">.</span>
               </span>
             </h1>
 
@@ -544,21 +559,21 @@ export default function Hero() {
               SEO SPECIALIST.
             </p>
 
-            <p className="max-w-[350px] text-sm leading-7 text-[#756f68]">
+            <p className="max-w-[440px] text-[16px] leading-8 text-muted md:text-[17px]">
               I build fast, thoughtful and high-performing
               websites for the modern web.
             </p>
 
-            <div className="my-8 flex flex-wrap items-center gap-4 font-mono text-[9px]">
+            <div className="my-8 flex flex-wrap items-center gap-4 font-mono text-xs">
               <span>BASED IN BANGLADESH</span>
               <span className="text-lg text-red-500">✦</span>
               <span>WORKING WORLDWIDE</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 font-mono text-[10px]">
+            <div className="flex flex-wrap items-center gap-4 font-mono text-xs">
               <a
                 href="#projects"
-                className="flex items-center gap-7 border bg-black px-5 py-3 text-white transition-colors hover:border-red-500 hover:bg-transparent hover:text-red-500"
+                className="flex items-center gap-7 border border-fg bg-fg px-5 py-3 text-bg transition-colors hover:border-red-500 hover:bg-transparent hover:text-red-500"
               >
                 VIEW MY WORK
                 <span className="text-xl">↓</span>
@@ -567,7 +582,7 @@ export default function Hero() {
               <a
                 href="/resume.pdf"
                 download
-                className="flex items-center gap-7 border border-red-500 px-4 py-3 text-red-500 transition-colors hover:border-black hover:bg-black hover:text-white"
+                className="flex items-center gap-7 border border-red-500 px-4 py-3 text-red-500 transition-colors hover:border-fg hover:bg-fg hover:text-bg"
               >
                 GET MY RESUME
                 <span className="text-xl">↗</span>
@@ -578,7 +593,7 @@ export default function Hero() {
           <Portrait />
         </div>
 
-        <div className="relative z-10 mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 border-t border-[#c9c3b9] pt-6 font-mono text-[8px] text-[#827a70]">
+        <div className="relative z-10 mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 border-t border-line pt-6 font-mono text-[11px] text-muted">
           <span>THOUGHTFUL CODE. MEANINGFUL EXPERIENCES.</span>
           <span className="text-lg text-red-500">✦</span>
           <span>DESIGNED WITH INTENTION ↗</span>

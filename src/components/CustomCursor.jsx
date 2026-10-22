@@ -52,13 +52,14 @@ export default function CustomCursor() {
         return;
       }
 
-      // Header/footer navigation menu-তে বড় cursor হবে না।
-      const menu = target.closest(
-        "header nav, footer nav, " +
-          'header [role="navigation"], footer [role="navigation"]'
+      // পুরো Header-এ (logo, menu, theme button, Enquire button)
+      // এবং footer navigation-এ বড় cursor হবে না।
+      const noZone = target.closest(
+        "header, footer nav, " +
+          'footer [role="navigation"]'
       );
 
-      if (menu) {
+      if (noZone) {
         setHovered(false);
         return;
       }

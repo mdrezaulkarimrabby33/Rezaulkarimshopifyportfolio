@@ -47,7 +47,7 @@ const services = [
     category: "ECOMMERCE DEVELOPMENT",
     description:
       "Custom storefronts built for a smooth shopping experience.",
-    image: "img/Shopify Bag on Oxblood Pedestal.png",
+    image: "/img/Shopify Bag on Oxblood Pedestal.png",
     imageAlt: "Shopify development service",
     imagePosition: "center",
     href: "#contact",
@@ -59,7 +59,7 @@ const services = [
     category: "WEBSITE DEVELOPMENT",
     description:
       "Flexible, fast websites that are easy to manage and grow.",
-    image: "img/Blue WordPress Medallion on Burgundy Cylinder.png",
+    image: "/img/Blue WordPress Medallion on Burgundy Cylinder.png",
     imageAlt: "WordPress development service",
     imagePosition: "center",
     href: "#contact",
@@ -158,12 +158,12 @@ function ServiceCard({ service, index }) {
           hover: { y: reduceMotion ? 0 : -6 },
         }}
         transition={transition}
-        className="group flex h-full min-w-0 flex-col rounded-[24px] bg-[#1C1B18] p-1 text-[#F2EFE9] outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#F2EFE9]"
+        className="group flex h-full min-w-0 flex-col rounded-[24px] bg-[#1C1B18] p-1 text-[#F2EFE9] outline-none ring-1 ring-white/10 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-4 focus-visible:ring-offset-bg"
       >
         {/* Image */}
         <div
           data-cursor="image"
-          className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-[20px] bg-[#DDD8CF]"
+          className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-[20px] bg-line"
         >
           {/* Scroll parallax */}
           <motion.div
@@ -256,11 +256,11 @@ export default function FeaturedServices() {
     <section
       id={sectionContent.id}
       aria-labelledby={headingId}
-      className="bg-[#F2EFE9] px-4 py-10 text-[#211F1C] sm:px-6 sm:py-14 lg:px-8 lg:py-16 xl:py-20"
+      className="bg-bg px-4 py-10 text-fg transition-colors duration-300 sm:px-6 sm:py-14 lg:px-8 lg:py-16 xl:py-20"
     >
       <div className="mx-auto w-full max-w-[1400px]">
         {/* Section label */}
-        <div className="flex items-start justify-between gap-4 border-t border-black/20 pt-4 sm:pt-5">
+        <div className="flex items-start justify-between gap-4 border-t border-fg/20 pt-4 sm:pt-5">
           <p className="min-w-0 break-words font-mono text-[9px] uppercase leading-5 tracking-wide sm:text-[10px]">
             {sectionContent.label}
           </p>
@@ -290,7 +290,7 @@ export default function FeaturedServices() {
             }
             className="min-w-0 flex-1"
           >
-            <p className="mb-4 flex items-start gap-3 font-mono text-[9px] uppercase leading-5 tracking-[0.12em] text-[#756F68] sm:text-[10px] sm:tracking-[0.18em]">
+            <p className="mb-4 flex items-start gap-3 font-mono text-[9px] uppercase leading-5 tracking-[0.12em] text-muted sm:text-[10px] sm:tracking-[0.18em]">
               <span
                 aria-hidden="true"
                 className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-red-500"
@@ -317,7 +317,7 @@ export default function FeaturedServices() {
               </span>
             </h2>
 
-            <p className="mt-4 max-w-md break-words text-[13px] leading-6 text-[#756F68] sm:mt-5 sm:text-sm sm:leading-7">
+            <p className="mt-4 max-w-md break-words text-[13px] leading-6 text-muted sm:mt-5 sm:text-sm sm:leading-7">
               {sectionContent.description}
             </p>
           </motion.div>
@@ -347,7 +347,7 @@ export default function FeaturedServices() {
 
         {/* Bottom content */}
         <div className="mt-7 flex flex-col items-start justify-between gap-5 sm:mt-9 sm:flex-row sm:items-center sm:gap-8">
-          <p className="min-w-0 break-words text-[13px] leading-7 text-[#756F68] sm:text-sm">
+          <p className="min-w-0 break-words text-[13px] leading-7 text-muted sm:text-sm">
             {sectionContent.bottomLineOne}
             <br />
             {sectionContent.bottomLineTwo}
@@ -355,7 +355,7 @@ export default function FeaturedServices() {
 
           <a
             href={sectionContent.contactLink}
-            className="inline-flex min-h-11 max-w-full shrink-0 items-center justify-center gap-8 border border-black/30 px-5 py-3.5 font-mono text-[10px] uppercase transition-colors duration-300 hover:border-red-500 hover:bg-red-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500 motion-reduce:transition-none"
+            className="inline-flex min-h-11 max-w-full shrink-0 items-center justify-center gap-8 border border-fg/30 px-5 py-3.5 font-mono text-[10px] uppercase transition-colors duration-300 hover:border-red-500 hover:bg-red-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500 motion-reduce:transition-none"
           >
             <span>{sectionContent.buttonText}</span>
             <ArrowUpRight className="h-4 w-4 shrink-0" />

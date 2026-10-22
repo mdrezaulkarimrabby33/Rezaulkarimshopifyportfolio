@@ -96,7 +96,7 @@ function RotatingImages() {
                   }deg)`,
                 }}
               >
-                <div className="h-full w-full overflow-hidden rounded-2xl bg-[#D8D4CC] [transform:rotateY(45deg)]">
+                <div className="h-full w-full overflow-hidden rounded-2xl bg-line [transform:rotateY(45deg)]">
                   <img
                     src={src}
                     alt=""
@@ -119,7 +119,7 @@ function CardContent({ step }) {
   return (
     <>
       <div className="flex items-center justify-between">
-        <span className="font-mono text-xs text-[#706C65]">
+        <span className="font-mono text- text-muted">
           {step.number}
         </span>
 
@@ -130,7 +130,7 @@ function CardContent({ step }) {
         {step.title}
       </h3>
 
-      <p className="mt-4 max-w-lg text-sm leading-7 text-[#706C65]">
+      <p className="mt-4 max-w-lg text-sm leading-7 text-muted">
         {step.description}
       </p>
     </>
@@ -151,7 +151,7 @@ function DesktopCard({ step, index, progress }) {
   return (
     <motion.article
       style={{ y }}
-      className="min-w-0 border-t border-black/15 pt-5"
+      className="min-w-0 border-t border-fg/15 pt-5"
     >
       <CardContent step={step} />
     </motion.article>
@@ -189,7 +189,7 @@ function ProcessCards() {
               reduceMotion ? (
                 <article
                   key={step.number}
-                  className="min-w-0 border-t border-black/15 pt-5"
+                  className="min-w-0 border-t border-fg/15 pt-5"
                 >
                   <CardContent step={step} />
                 </article>
@@ -220,7 +220,7 @@ function ProcessCards() {
               duration: 0.6,
               ease: "easeOut",
             }}
-            className="border-t border-black/15 pt-5"
+            className="border-t border-fg/15 pt-5"
           >
             <CardContent step={step} />
           </motion.article>
@@ -236,10 +236,10 @@ export default function WorkProcess() {
   return (
     <section
       aria-labelledby="work-process-heading"
-      className="bg-[#E7E3DA] px-5 pb-3 pt-12 text-[#211F1C] sm:px-8 sm:pb-4 sm:pt-16 lg:px-12 lg:pb-5 lg:pt-20"
+      className="bg-bg-alt px-5 pb-3 pt-12 text-fg transition-colors duration-300 sm:px-8 sm:pb-4 sm:pt-16 lg:px-12 lg:pb-5 lg:pt-20"
     >
       <div className="mx-auto max-w-[1400px]">
-        <div className="flex items-center justify-between border-t border-black/15 pt-5">
+        <div className="flex items-center justify-between border-t border-fg/15 pt-5">
           <p className="font-mono text-[10px] uppercase tracking-wide sm:text-xs">
             05 / How I think about the work
           </p>

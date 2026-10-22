@@ -9,6 +9,16 @@
   href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&display=swap"
   rel="stylesheet"
 />
+<script>
+  (function () {
+    try {
+      // Default is always light, dark only if the visitor chose it
+      if (localStorage.getItem("theme") === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    } catch (e) {}
+  })();
+</script>
   </head>
   <body>
     <div id="root"></div>

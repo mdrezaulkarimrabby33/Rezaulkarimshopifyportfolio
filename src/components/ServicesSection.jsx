@@ -170,12 +170,12 @@ function ServiceRow({ service }) {
           setHovered(false);
         }
       }}
-      className={`relative border-t border-black/20 ${
+      className={`relative border-t border-fg/20 ${
         active ? "z-20" : "z-0"
       }`}
     >
       <div className="relative grid grid-cols-[24px_minmax(0,1fr)_28px] items-start gap-x-3 py-7 sm:gap-x-5 sm:py-9 md:grid-cols-[32px_minmax(0,1fr)_minmax(0,1fr)_28px] md:gap-x-6 xl:min-h-[210px] xl:grid-cols-[32px_minmax(0,1.1fr)_minmax(0,1fr)_280px_28px] xl:gap-x-6 xl:py-10">
-        <span className="pt-1 font-mono text-[10px] text-[#706C65]">
+        <span className="pt-1 font-mono text-[10px] text-muted">
           [{service.number}]
         </span>
 
@@ -191,7 +191,7 @@ function ServiceRow({ service }) {
               aria-controls={previewId}
               onClick={() => setOpened((value) => !value)}
               className={`flex w-full min-w-0 items-start gap-3 text-left outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-500 sm:gap-4 ${
-                active ? "text-red-500" : "text-[#211F1C]"
+                active ? "text-red-500" : "text-fg"
               }`}
             >
               <span className="shrink-0 pt-1">
@@ -206,11 +206,11 @@ function ServiceRow({ service }) {
         </motion.div>
 
         <div className="col-start-2 row-start-2 mt-5 min-w-0 md:col-start-3 md:row-start-1 md:mt-0">
-          <p className="max-w-[430px] text-[13px] leading-6 text-[#706C65] sm:text-sm sm:leading-7">
-            {service.description}
-          </p>
+          <p className="max-w-[430px] text-[18px] leading-7 text-muted">
+  {service.description}
+</p>
 
-          <p className="mt-4 break-words font-mono text-[8px] uppercase leading-5 text-[#817B73] sm:mt-5">
+          <p className="mt-4 break-words font-mono text-[8px] uppercase leading-5 text-muted sm:mt-5">
             {service.tags}
           </p>
         </div>
@@ -235,7 +235,7 @@ function ServiceRow({ service }) {
                   : "inset(50% 45% 50% 45% round 16px)",
               }}
               transition={transition}
-              className="aspect-[13/15] w-full max-w-[260px] overflow-hidden rounded-2xl bg-[#D8D4CC]"
+              className="aspect-[13/15] w-full max-w-[260px] overflow-hidden rounded-2xl bg-line"
             >
               <img
                 src={service.image}
@@ -267,7 +267,7 @@ function ServiceRow({ service }) {
               }}
               transition={transition}
               style={{ x: "-50%", y: "-50%" }}
-              className="absolute left-0 top-0 flex items-center justify-center overflow-hidden rounded-2xl bg-[#D8D4CC]"
+              className="absolute left-0 top-0 flex items-center justify-center overflow-hidden rounded-2xl bg-line"
             >
               <img
                 src={service.image}
@@ -285,7 +285,7 @@ function ServiceRow({ service }) {
           href="#contact"
           aria-label={`Contact me about ${service.title}`}
           className={`col-start-3 row-start-1 flex min-h-11 min-w-11 -translate-y-2 items-center justify-center justify-self-end outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-red-500 md:col-start-4 xl:col-start-5 ${
-            active ? "text-red-500" : "text-[#211F1C]"
+            active ? "text-red-500" : "text-fg"
           }`}
         >
           <ArrowUpRight />
@@ -304,10 +304,10 @@ export default function ServicesSection() {
     <section
       id="services"
       aria-labelledby="services-heading"
-      className="bg-[#F2EFE9] px-4 py-10 text-[#211F1C] sm:px-6 sm:py-14 lg:px-8 lg:py-16 xl:py-20"
+      className="bg-bg px-4 py-10 text-fg transition-colors duration-300 sm:px-6 sm:py-14 lg:px-8 lg:py-16 xl:py-20"
     >
       <div className="mx-auto w-full max-w-[1400px]">
-        <div className="flex items-center justify-between gap-4 border-t border-black/20 pt-5">
+        <div className="flex items-center justify-between gap-4 border-t border-fg/20 pt-5">
           <p className="font-mono text-[10px] uppercase tracking-wide">
             04 / My focus
           </p>
@@ -331,12 +331,12 @@ export default function ServicesSection() {
             <span className="text-red-500">.</span>
           </h2>
 
-          <p className="max-w-[230px] shrink-0 text-[13px] leading-6 text-[#706C65] sm:text-sm sm:leading-7 lg:pb-2">
-            From the first impression to the last technical detail.
-          </p>
+         <p className="max-w-[230px] shrink-0 text-[18px] leading-7 text-muted lg:pb-2">
+  From the first impression to the last technical detail.
+</p>
         </div>
 
-        <div className="border-b border-black/20">
+        <div className="border-b border-fg/20">
           {services.map((service) => (
             <ServiceRow
               key={service.number}
